@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Result</title>
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; background: #fafafa; }
+      .wrap { max-width: 980px; margin: 0 auto; }
+      .grid { display: grid; grid-template-columns: 360px 1fr; gap: 20px; align-items: start; }
+      .card { background:#fff; border:1px solid #eee; border-radius:14px; box-shadow:0 2px 10px rgba(0,0,0,.04); }
+      .pad { padding: 18px; }
+      .title { font-size: 18px; margin: 0 0 8px; }
+      .verdict-ok { color:#065f46; background:#ecfdf5; border:1px solid #a7f3d0; }
+      .verdict-warn { color:#92400e; background:#fffbeb; border:1px solid #fde68a; }
+      .img { width:100%; border-radius:12px; display:block; }
+      .muted { color:#666; }
+      .bar-shell { height: 12px; border-radius: 999px; background:#eee; position: relative; overflow:hidden; }
+      .bar-fill { position:absolute; left:0; top:0; bottom:0; width: var(--w,0%); border-radius: 999px; }
+      /* solid colors for speed bar */
+      .bar-green { background:#10b981; }
+      .bar-amber { background:#f59e0b; }
+      .bar-red   { background:#ef4444; }
+      .bar-gray  { background:#9ca3af; }
+
+      /* gradient for confidence bar */
+      .grad-fill {
+        background: linear-gradient(90deg, #ef4444 0%, #f59e0b 50%, #10b981 100%);
+      }
+
+      .model-card { display:flex; flex-direction:column; gap:10px; }
+      .model-row { display:flex; justify-content:space-between; gap:8px; align-items:center; }
+      .chip { font-size:12px; padding:4px 8px; border-radius:999px; background:#f3f4f6; color:#374151; }
+      a.btn { display:inline-block; padding:10px 14px; background:#111; color:#fff; border-radius:10px; text-decoration:none; }
+      details summary { cursor: pointer; margin-top: 8px; }
+      .label { font-size: 12px; color:#374151; }
+      .value { font-size: 12px; color:#111; }
+      .row-gap { display:flex; flex-direction:column; gap:6px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="grid">
+        <div class="card pad">
+          <img class="img" src="{{ image_url }}" alt="Uploaded image">
+        </div>
+
+        <div class="card pad {% if verdict.status == 'ok' %}verdict-ok{% else %}verdict-warn{% endif %}">
+          <h2 class="title">{{ verdict.title }}</h2>
+          <p class="muted">{{ verdict.subtitle }}</p>
+          
+          <div style="margin-top:12px;">
+            <a class="btn" href="{% url 'upload' %}">Try another image</a>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="margin:24px 0 12px;">Models</h3>
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:16px;">
+        {% for m in models %}
+          <div class="card pad model-card">
+            <div class="model-row">
+              <strong>{{ m.model }}</strong>
+              <span class="chip">{{ m.device }}</span>
+            </div>
+
+            {% if m.present %}
+              <div>{{ m.label }}</div>
+
+              <div class="row-gap">
+                <div class="model-row">
+                  <span class="label">Confidence</span>
+                  <span class="value">{{ m.conf_pct }}</span>
+                </div>
+                <div class="bar-shell" title="Confidence (higher is better)">
+                  <span class="bar-fill grad-fill" style="--w: {{ m.conf_pct_num }}%; width: {{ m.conf_pct_num }}%"></span>
+                </div>
+              </div>
+
+              <div class="row-gap">
+                <div class="model-row">
+                  <span class="label">Speed</span>
+                  <span class="value">{{ m.infer_secs|floatformat:3 }} s</span>
+                </div>
+                <div class="bar-shell" title="Speed (faster is better)">
+                  <span class="bar-fill {{ m.infer_class }}" style="--w: {{ m.infer_pct_num }}%; width: {{ m.infer_pct_num }}%"></span>
+                </div>
+                <small class="muted">0–3.0s scale. Longer bar = faster.</small>
+              </div>
+
+            {% else %}
+              <div class="muted">{{ m.note }}</div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <details style="margin-top:18px;">
+        <summary>Technical details</summary>
+        <pre style="white-space:pre-wrap;">{{ raw|safe }}</pre>
+      </details>
+    </div>
+  </body>
+</html>

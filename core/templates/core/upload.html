@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Plant Classifier</title>
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; }
+      .card { max-width: 720px; margin: 0 auto; padding: 24px; border: 1px solid #eee; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
+      .row { margin: 12px 0; }
+      button { padding: 10px 16px; border: 0; border-radius: 10px; background: #111; color: #fff; cursor: pointer; }
+      input[type=file], input[type=text] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
+      small.muted { color: #666; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h2>Identify Plant & Disease</h2>
+      <p class="row">Upload a clear photo of a single plant leaf/fruit. We’ll tell you what it is and how sure we are.</p>
+
+      {% if error %}<p style="color:#b00020">{{ error }}</p>{% endif %}
+
+      <form action="{% url 'predict' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row">
+          <label><b>Image</b></label>
+          {{ form.image }}
+          <small class="muted">JPG/PNG/WebP/TIFF</small>
+        </div>
+        <div class="row">
+          <label>Target Crop (optional)</label>
+          {{ form.target_crop }}
+        </div>
+        <div class="row">
+          <label>Target State (optional)</label>
+          {{ form.target_state }}
+        </div>
+        <div class="row">
+          <button type="submit">Check Image</button>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

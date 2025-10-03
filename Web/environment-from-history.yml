@@ -1,0 +1,11 @@
+name: xception-tf
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - libgcc-ng=12
+  - libstdcxx-ng=12
+  - numpy
+  - h5py
+prefix: /home/ashres34/.conda/envs/xception-tf
